@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <!-- Head Partial -->
+    <%- include('partials/head'); %>
+
+    <title>تسجيل الدخول</title>
+    <style>
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+    </style>
+  </head>
+
+  <body class="jumbotron">
+    <div class="container h-100">
+      <div class="row align-items-center h-100">
+        <div class="col-6 mx-auto">
+          <div class="jumbotron">
+            <div class="card">
+              <div class="card-header card-header-primary text-center">
+                <img src="/img/logo.png" width="200" height="200" />
+                <h3 class="card-title text-center">
+                  استمارات الباحث الاجتماعي
+                </h3>
+              </div>
+              <div class="card-body">
+                <%- include('partials/messages'); %>
+                <form action="/login" method="POST">
+                  <div class="form-group">
+                    <label class="bmd-label-floating">الرقم الوظيفي</label>
+                    <input name="id" type="number" class="form-control" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="bmd-label-floating">كلمة المرور</label>
+                    <input name="password" type="password" class="form-control" required />
+                  </div>
+                  <div class="form-group">
+                    <select name="type" class="custom-select">
+                      <option value="A">مسؤول النظام</option>
+                      <option value="M">مدير البحث الاجتماعي</option>
+                      <option value="R">الباحث الاجتماعي</option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-primary pull-right">
+                    تسجيل الدخول
+                  </button>
+                  <div class="clearfix"></div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bottom Partial -->
+    <%- include('partials/bottom'); %>
+  </body>
+</html>
