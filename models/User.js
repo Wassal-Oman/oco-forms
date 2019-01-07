@@ -67,7 +67,8 @@ const User = sequelize.define('users', {
         allowNull: false,
         validate: {
             min: 1,
-            max: 1
+            max: 1,
+            isUppercase: true
         }
     }
 }, {

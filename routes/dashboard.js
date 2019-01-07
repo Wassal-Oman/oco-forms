@@ -4,6 +4,10 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const encrypt = require('../config/encryption');
 const settings = require('../config/settings');
+const Disaster = require('../models/Disaster');
+const Mazyoona = require('../models/Mazyoona');
+const Rescue = require('../models/Rescue');
+const General = require('../models/General');
 
 // initialize router
 const router = express.Router();
@@ -100,6 +104,12 @@ router.get('/admin-home', sessionChecker, (req, res) => {
 // manager home route
 router.get('/manager-home', sessionChecker, (req, res) => {
 
+    // define promises
+    const disasterPromise = getDisasterFormsCount();
+    const mazyoonaPromise = getMazyoonaFormsCount();
+    const rescuePromise = getRescueFormsCount();
+    const generalPromise = getGeneralFormsCount();
+
     // set active pages
     const pages = {
         home: 'active',
@@ -110,31 +120,57 @@ router.get('/manager-home', sessionChecker, (req, res) => {
         general: ''
     };
 
-    // render home page
-    res.render('manager-home', {
-        user: req.session.user,
-        pages
+    // get all statistics
+    Promise.all([disasterPromise, mazyoonaPromise, rescuePromise, generalPromise]).then(val => {
+        // render home page
+        res.render('manager-home', {
+            user: req.session.user,
+            pages,
+            disasterCount: val[0],
+            mazyoonaCount: val[1],
+            rescueCount: val[2],
+            generalCount: val[3]
+        });
+    }).catch(err => {
+        console.log(err);
+        res.redirect('/500');
     });
 });
 
 // manager home route
 router.get('/researcher-home', sessionChecker, (req, res) => {
 
-    // set active pages
-    const pages = {
-        home: 'active',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
+   // define promises
+   const disasterPromise = getDisasterFormsCount();
+   const mazyoonaPromise = getMazyoonaFormsCount();
+   const rescuePromise = getRescueFormsCount();
+   const generalPromise = getGeneralFormsCount();
 
-    // render home page
-    res.render('researcher-home', {
-        user: req.session.user,
-        pages
-    });
+   // set active pages
+   const pages = {
+       home: 'active',
+       profile: '',
+       disaster: '',
+       mazyoona: '',
+       rescue: '',
+       general: ''
+   };
+
+   // get all statistics
+   Promise.all([disasterPromise, mazyoonaPromise, rescuePromise, generalPromise]).then(val => {
+       // render home page
+       res.render('researcher-home', {
+           user: req.session.user,
+           pages,
+           disasterCount: val[0],
+           mazyoonaCount: val[1],
+           rescueCount: val[2],
+           generalCount: val[3]
+       });
+   }).catch(err => {
+       console.log(err);
+       res.redirect('/500');
+   });
 });
 
 // admin profile
@@ -153,8 +189,8 @@ router.get('/admin-profile', sessionChecker, (req, res) => {
     });
 });
 
-// profile route
-router.get('/profile', sessionChecker, (req, res) => {
+// manager profile route
+router.get('/manager-profile', sessionChecker, (req, res) => {
     // set active pages
     const pages = {
         home: '',
@@ -166,7 +202,26 @@ router.get('/profile', sessionChecker, (req, res) => {
     };
 
     // render home page
-    res.render('profile', {
+    res.render('manager-profile', {
+        user: req.session.user,
+        pages
+    });
+});
+
+// researcher profile route
+router.get('/researcher-profile', sessionChecker, (req, res) => {
+    // set active pages
+    const pages = {
+        home: '',
+        profile: 'active',
+        disaster: '',
+        mazyoona: '',
+        rescue: '',
+        general: ''
+    };
+
+    // render home page
+    res.render('researcher-profile', {
         user: req.session.user,
         pages
     });
@@ -305,7 +360,84 @@ router.post('/confirm-password', (req, res) => {
 });
 
 // disaster route
-router.get('/disaster-form', sessionChecker, (req, res) => {
+router.get('/manager-disaster-form', sessionChecker, (req, res) => {
+    // set active pages
+    const pages = {
+        home: '',
+        profile: '',
+        disaster: 'active',
+        mazyoona: '',
+        rescue: '',
+        general: ''
+    };
+
+    // render page
+    res.render('manager-disaster-form', {
+        user: req.session.user,
+        pages,
+        disasters: null
+    });
+});
+
+// mazyoona route
+router.get('/manager-mazyoona-form', sessionChecker, (req, res) => {
+    // set active pages
+    const pages = {
+        home: '',
+        profile: '',
+        disaster: '',
+        mazyoona: 'active',
+        rescue: '',
+        general: ''
+    };
+
+    // render page
+    res.render('manager-mazyoona-form', {
+        user: req.session.user,
+        pages
+    });
+});
+
+// rescue route
+router.get('/manager-rescue-form', sessionChecker, (req, res) => {
+    // set active pages
+    const pages = {
+        home: '',
+        profile: '',
+        disaster: '',
+        mazyoona: '',
+        rescue: 'active',
+        general: ''
+    };
+
+    // render page
+    res.render('manager-rescue-form', {
+        user: req.session.user,
+        pages
+    });
+});
+
+// general route
+router.get('/manager-general-form', sessionChecker, (req, res) => {
+    // set active pages
+    const pages = {
+        home: '',
+        profile: '',
+        disaster: '',
+        mazyoona: '',
+        rescue: '',
+        general: 'active'
+    };
+
+    // render page
+    res.render('manager-general-form', {
+        user: req.session.user,
+        pages
+    });
+});
+
+// disaster route
+router.get('/researcher-disaster-form', sessionChecker, (req, res) => {
     // set active pages
     const pages = {
         home: '',
@@ -324,7 +456,7 @@ router.get('/disaster-form', sessionChecker, (req, res) => {
 });
 
 // mazyoona route
-router.get('/mazyoona-form', sessionChecker, (req, res) => {
+router.get('/researcher-mazyoona-form', sessionChecker, (req, res) => {
     // set active pages
     const pages = {
         home: '',
@@ -343,7 +475,7 @@ router.get('/mazyoona-form', sessionChecker, (req, res) => {
 });
 
 // rescue route
-router.get('/rescue-form', sessionChecker, (req, res) => {
+router.get('/researcher-rescue-form', sessionChecker, (req, res) => {
     // set active pages
     const pages = {
         home: '',
@@ -362,7 +494,7 @@ router.get('/rescue-form', sessionChecker, (req, res) => {
 });
 
 // general route
-router.get('/general-form', sessionChecker, (req, res) => {
+router.get('/researcher-general-form', sessionChecker, (req, res) => {
     // set active pages
     const pages = {
         home: '',
@@ -386,10 +518,116 @@ router.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
+// if there is server error
+router.get('/500', (req, res) => {
+    res.status(500).render('500');
+});
+
 // if route does not exist
 router.use((req, res, next) => {
     res.status(404).render('404');
 });
+
+/* ***** Helper Functions ***** */
+function getUsers() {
+    return new Promise((resolve, reject) => {
+        User.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getUsersCount() {
+    return new Promise((resolve, reject) => {
+        User.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getDisasterForms() {
+    return new Promise((resolve, reject) => {
+        Disaster.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getDisasterFormsCount() {
+    return new Promise((resolve, reject) => {
+        Disaster.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getMazyoonaForms() {
+    return new Promise((resolve, reject) => {
+        Mazyoona.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getMazyoonaFormsCount() {
+    return new Promise((resolve, reject) => {
+        Mazyoona.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getRescueForms() {
+    return new Promise((resolve, reject) => {
+        Rescue.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getRescueFormsCount() {
+    return new Promise((resolve, reject) => {
+        Rescue.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getGeneralForms() {
+    return new Promise((resolve, reject) => {
+        General.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getGeneralFormsCount() {
+    return new Promise((resolve, reject) => {
+        General.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
 
 // export router
 module.exports = router;

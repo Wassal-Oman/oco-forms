@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <!-- Head Partial -->
+    <%- include('partials/head'); %>
+
+    <title>استمارات الباحث الاجتماعي</title>
+</head>
+
+<body class="">
+  <div class="wrapper ">
+    <div class="sidebar" data-color="purple" data-background-color="white" data-image="/img/sidebar.jpg">
+
+      <!-- Logo -->
+      <div class="logo">
+        <a href="/" class="simple-text logo-normal">
+        استمارات الباحث الاجتماعي
+        </a>
+      </div>
+
+      <!-- Sidebar Partial -->
+      <%- include('partials/manager-sidebar'); %>
+
+    </div>
+    <div class="main-panel">
+
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            <p class="navbar-brand">الصفحة الشخصية</p>
+          </div>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="navbar-toggler-icon icon-bar"></span>
+            <span class="navbar-toggler-icon icon-bar"></span>
+            <span class="navbar-toggler-icon icon-bar"></span>
+          </button>
+        </div>
+      </nav>
+
+
+      <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-8">
+                <div class="card">
+                  <div class="card-header card-header-primary">
+                    <h4 class="card-title">الملف الشخصي للمستخدم</h4>
+                  </div>
+                  <div class="card-body">
+                    <form>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label class="bmd-label-floating">الرقم الوظيفي</label>
+                            <input type="text" class="form-control" value="<%= user.id %>" disabled>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label class="bmd-label-floating">اسم المستخدم</label>
+                            <input type="text" class="form-control" value="<%= user.name %>" disabled>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label class="bmd-label-floating">رقم الهاتف</label>
+                            <input type="text" class="form-control" value="<%= user.phone %>" disabled>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label class="bmd-label-floating">عنوان البريد الالكتروني</label>
+                            <input type="text" class="form-control" value="<%= user.email %>" disabled>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="clearfix"></div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+        <footer class="footer">
+          <div class="container-fluid">
+            <div class="copyright float-right">
+              &copy;
+              <script>
+                document.write(new Date().getFullYear())
+              </script>
+             كل الحقوق محفوظة لدى الهيئة العمانية للاعمال الخيرية
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Bottom Partial -->
+    <%- include('partials/bottom'); %>
+</body>
+
+</html>
