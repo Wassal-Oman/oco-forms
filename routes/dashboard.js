@@ -60,11 +60,11 @@ router.post('/login', (req, res) => {
                             break;
                         case 'M':
                             req.session.user = user.dataValues;
-                            res.redirect('/manager-home');
+                            res.redirect('/home');
                             break;
                         case 'R':
                             req.session.user = user.dataValues;
-                            res.redirect('/researcher-home');
+                            res.redirect('/home');
                             break;
                         default:
                             res.redirect('/logout');
@@ -84,7 +84,9 @@ router.post('/login', (req, res) => {
     });
 });
 
-// manager home route
+/* ***** admin routes ***** */
+
+// admin home route
 router.get('/admin-home', sessionChecker, (req, res) => {
 
     // set active pages
@@ -101,79 +103,7 @@ router.get('/admin-home', sessionChecker, (req, res) => {
     });
 });
 
-// manager home route
-router.get('/manager-home', sessionChecker, (req, res) => {
-
-    // define promises
-    const disasterPromise = getDisasterFormsCount();
-    const mazyoonaPromise = getMazyoonaFormsCount();
-    const rescuePromise = getRescueFormsCount();
-    const generalPromise = getGeneralFormsCount();
-
-    // set active pages
-    const pages = {
-        home: 'active',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
-
-    // get all statistics
-    Promise.all([disasterPromise, mazyoonaPromise, rescuePromise, generalPromise]).then(val => {
-        // render home page
-        res.render('manager-home', {
-            user: req.session.user,
-            pages,
-            disasterCount: val[0],
-            mazyoonaCount: val[1],
-            rescueCount: val[2],
-            generalCount: val[3]
-        });
-    }).catch(err => {
-        console.log(err);
-        res.redirect('/500');
-    });
-});
-
-// manager home route
-router.get('/researcher-home', sessionChecker, (req, res) => {
-
-   // define promises
-   const disasterPromise = getDisasterFormsCount();
-   const mazyoonaPromise = getMazyoonaFormsCount();
-   const rescuePromise = getRescueFormsCount();
-   const generalPromise = getGeneralFormsCount();
-
-   // set active pages
-   const pages = {
-       home: 'active',
-       profile: '',
-       disaster: '',
-       mazyoona: '',
-       rescue: '',
-       general: ''
-   };
-
-   // get all statistics
-   Promise.all([disasterPromise, mazyoonaPromise, rescuePromise, generalPromise]).then(val => {
-       // render home page
-       res.render('researcher-home', {
-           user: req.session.user,
-           pages,
-           disasterCount: val[0],
-           mazyoonaCount: val[1],
-           rescueCount: val[2],
-           generalCount: val[3]
-       });
-   }).catch(err => {
-       console.log(err);
-       res.redirect('/500');
-   });
-});
-
-// admin profile
+// admin profile route
 router.get('/admin-profile', sessionChecker, (req, res) => {
     // set active pages
     const pages = {
@@ -189,64 +119,34 @@ router.get('/admin-profile', sessionChecker, (req, res) => {
     });
 });
 
-// manager profile route
-router.get('/manager-profile', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: 'active',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
-
-    // render home page
-    res.render('manager-profile', {
-        user: req.session.user,
-        pages
-    });
-});
-
-// researcher profile route
-router.get('/researcher-profile', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: 'active',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
-
-    // render home page
-    res.render('researcher-profile', {
-        user: req.session.user,
-        pages
-    });
-});
-
 // users route
 router.get('/users', sessionChecker, (req, res) => {
     if(req.session.user.type !== 'A') {
         res.redirect('/logout');
     } else {
-        // set active pages
-        const pages = {
-            home: '',
-            profile: '',
-            users: 'active'
-        };
 
-        res.render('users', {
-            user: req.session.user,
-            pages
+        //get users
+        getUsers().then(val => {
+            // set active pages
+            const pages = {
+                home: '',
+                profile: '',
+                users: 'active'
+            };
+
+            res.render('users', {
+                user: req.session.user,
+                pages,
+                users: val
+            });
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/500');
         });
     }
 });
 
-// add user routes
+// add user GET
 router.get('/add-user', sessionChecker, (req, res) => {
     if(req.session.user.type !== 'A') {
         res.redirect('/logout');
@@ -265,6 +165,7 @@ router.get('/add-user', sessionChecker, (req, res) => {
     }
 });
 
+// add user POST
 router.post('/add-user', sessionChecker, (req, res) => {
     if(req.session.user.type !== 'A') {
         res.redirect('/logout');
@@ -292,6 +193,235 @@ router.post('/add-user', sessionChecker, (req, res) => {
     }
 });
 
+// delete user
+router.get('/delete-user/:id', sessionChecker, (req, res) => {
+    if(req.session.user.type !== 'A') {
+        res.redirect('/logout');
+    } else {
+        // get user id
+        const id = req.params.id;
+
+        // delete user based on id
+        if(id != req.session.user.id) {
+            User.destroy({ where: { id: id } }).then(val => {
+                if(val > 0) {
+                    req.flash('success', 'تم حذف المستخدم بنجاح');
+                    res.redirect('/users');
+                } else {
+                    req.flash('warning', 'لم يتم حذف المستخدم');
+                    res.redirect('/users');
+                }
+            }).catch(err => {
+                console.log(err);
+                req.flash('warning', 'لم يتم حذف المستخدم');
+                res.redirect('/users');
+            });
+        } else {
+            req.flash('error', 'لا يمكن حذف المستخدم الحالي');
+            res.redirect('/users');
+        }
+    }
+});
+
+// update user route GET
+router.get('/update-user/:id', sessionChecker, (req, res) => {
+    if(req.session.user.type !== 'A') {
+        res.redirect('/logout');
+    } else {
+        // get user data
+        const id = req.params.id;
+
+        User.findOne({ where: { id } }).then(user => {
+            if(!user) {
+                req.flash('error', 'لا يمكن تعديل بيانات هذا المستخدم');
+                res.redirect('/users');
+            } else {
+                // active page
+                const pages = {
+                    home: '',
+                    profile: '',
+                    users: 'active'
+                };
+
+                // render update user page
+                res.render('update-user', {
+                    user: req.session.user,
+                    pages,
+                    employee: user.dataValues
+                });
+            }
+        }).catch(err => {
+            console.log(err);
+            req.flash('error', 'لا يمكن تعديل بيانات هذا المستخدم');
+            res.redirect('/users');
+        });
+    }
+});
+
+// update user route POST
+router.post('/update-user/', sessionChecker, (req, res) => {
+    if(req.session.user.type !== 'A') {
+        res.redirect('/logout');
+    } else {
+        // get updated data
+        const { id, name, phone, email, password } = req.body;
+
+        // encrypt new password
+        encrypt.hashData(password).then(hash => {
+            // update user based on id
+            User.update({ name, phone, email, password: hash }, { where: { id }}).then(val => {
+                console.log(val);
+                req.flash('success', 'تم تعديل بيانات المستخدم بنجاح');
+                res.redirect('/users');
+            }).catch(err => {
+                console.log(err);
+                req.flash('error', 'لا يمكن تعديل بيانات المستخدم');
+                res.redirect('/users');
+            });
+        }).catch(err => {
+            console.log(err);
+            req.flash('error', 'لا يمكن تشفير كلمة المرور');
+            res.redirect('/users');
+        });
+    }
+});
+
+/* ***** manager & researcher routes ***** */
+
+// home route
+router.get('/home', sessionChecker, (req, res) => {
+
+    // define promises
+    const disasterPromise = getDisasterFormsCount();
+    const mazyoonaPromise = getMazyoonaFormsCount();
+    const rescuePromise = getRescueFormsCount();
+    const generalPromise = getGeneralFormsCount();
+
+    // set active pages
+    const pages = {
+        home: 'active',
+        profile: '',
+        disaster: '',
+        mazyoona: '',
+        rescue: '',
+        general: ''
+    };
+
+    // get all statistics
+    Promise.all([disasterPromise, mazyoonaPromise, rescuePromise, generalPromise]).then(val => {
+        // render home page
+        res.render('home', {
+            user: req.session.user,
+            pages,
+            disasterCount: val[0],
+            mazyoonaCount: val[1],
+            rescueCount: val[2],
+            generalCount: val[3]
+        });
+    }).catch(err => {
+        console.log(err);
+        res.redirect('/500');
+    });
+});
+
+// profile route
+router.get('/profile', sessionChecker, (req, res) => {
+    // set active pages
+    const pages = {
+        home: '',
+        profile: 'active',
+        disaster: '',
+        mazyoona: '',
+        rescue: '',
+        general: ''
+    };
+
+    // render home page
+    res.render('profile', {
+        user: req.session.user,
+        pages
+    });
+});
+
+// disaster route
+router.get('/disaster-form', sessionChecker, (req, res) => {
+    // set active pages
+    const pages = {
+        home: '',
+        profile: '',
+        disaster: 'active',
+        mazyoona: '',
+        rescue: '',
+        general: ''
+    };
+
+    // render page
+    res.render('disaster-form', {
+        user: req.session.user,
+        pages,
+        disasters: null
+    });
+});
+
+// mazyoona route
+router.get('/mazyoona-form', sessionChecker, (req, res) => {
+    // set active pages
+    const pages = {
+        home: '',
+        profile: '',
+        disaster: '',
+        mazyoona: 'active',
+        rescue: '',
+        general: ''
+    };
+
+    // render page
+    res.render('mazyoona-form', {
+        user: req.session.user,
+        pages
+    });
+});
+
+// rescue route
+router.get('/rescue-form', sessionChecker, (req, res) => {
+    // set active pages
+    const pages = {
+        home: '',
+        profile: '',
+        disaster: '',
+        mazyoona: '',
+        rescue: 'active',
+        general: ''
+    };
+
+    // render page
+    res.render('rescue-form', {
+        user: req.session.user,
+        pages
+    });
+});
+
+// general route
+router.get('/general-form', sessionChecker, (req, res) => {
+    // set active pages
+    const pages = {
+        home: '',
+        profile: '',
+        disaster: '',
+        mazyoona: '',
+        rescue: '',
+        general: 'active'
+    };
+
+    // render page
+    res.render('general-form', {
+        user: req.session.user,
+        pages
+    });
+});
+
+/* ***** common routes ***** */
+
 // reset password for API
 router.get('/reset-password/:id/:token', (req, res) => {
     // get id and token
@@ -313,6 +443,7 @@ router.get('/reset-password/:id/:token', (req, res) => {
     });
 });
 
+// confirm password route
 router.post('/confirm-password', (req, res) => {
     // get id
     const id = req.body.id;
@@ -357,159 +488,6 @@ router.post('/confirm-password', (req, res) => {
             });
         }
     }
-});
-
-// disaster route
-router.get('/manager-disaster-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: 'active',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
-
-    // render page
-    res.render('manager-disaster-form', {
-        user: req.session.user,
-        pages,
-        disasters: null
-    });
-});
-
-// mazyoona route
-router.get('/manager-mazyoona-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: 'active',
-        rescue: '',
-        general: ''
-    };
-
-    // render page
-    res.render('manager-mazyoona-form', {
-        user: req.session.user,
-        pages
-    });
-});
-
-// rescue route
-router.get('/manager-rescue-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: 'active',
-        general: ''
-    };
-
-    // render page
-    res.render('manager-rescue-form', {
-        user: req.session.user,
-        pages
-    });
-});
-
-// general route
-router.get('/manager-general-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: 'active'
-    };
-
-    // render page
-    res.render('manager-general-form', {
-        user: req.session.user,
-        pages
-    });
-});
-
-// disaster route
-router.get('/researcher-disaster-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: 'active',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
-
-    // render page
-    res.render('disaster-form', {
-        user: req.session.user,
-        pages
-    });
-});
-
-// mazyoona route
-router.get('/researcher-mazyoona-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: 'active',
-        rescue: '',
-        general: ''
-    };
-
-    // render page
-    res.render('mazyoona-form', {
-        user: req.session.user,
-        pages
-    });
-});
-
-// rescue route
-router.get('/researcher-rescue-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: 'active',
-        general: ''
-    };
-
-    // render page
-    res.render('rescue-form', {
-        user: req.session.user,
-        pages
-    });
-});
-
-// general route
-router.get('/researcher-general-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: 'active'
-    };
-
-    // render page
-    res.render('general-form', {
-        user: req.session.user,
-        pages
-    });
 });
 
 // logout route

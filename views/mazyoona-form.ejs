@@ -21,7 +21,7 @@
       </div>
 
       <!-- Sidebar Partial -->
-      <%- include('partials/manager-sidebar'); %>
+      <%- include('partials/sidebar'); %>
 
     </div>
     <div class="main-panel">
@@ -30,7 +30,7 @@
       <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
         <div class="container-fluid">
           <div class="navbar-wrapper">
-            <p class="navbar-brand">الاستمارات الاغاثية</p>
+            <p class="navbar-brand">استمارات المزيونة</p>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false"
             aria-label="Toggle navigation">
@@ -47,17 +47,8 @@
         <div class="container-fluid">
 
         </div>
-        <footer class="footer">
-          <div class="container-fluid">
-            <div class="copyright float-right">
-              &copy;
-              <script>
-                document.write(new Date().getFullYear())
-              </script>
-             كل الحقوق محفوظة لدى الهيئة العمانية للاعمال الخيرية
-            </div>
-          </div>
-        </footer>
+        <!-- footer partial -->
+        <%- include('partials/footer'); %>
       </div>
     </div>
 

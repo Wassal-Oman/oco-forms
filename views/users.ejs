@@ -45,21 +45,65 @@
 
       <div class="content">
         <div class="container-fluid">
-            <div class="row">
-                <a href="/add-user" class="btn btn-primary" role="button">اضافة مستخدم جديد</a>
-            </div>
-        </div>
-        <footer class="footer">
-          <div class="container-fluid">
-            <div class="copyright float-right">
-              &copy;
-              <script>
-                document.write(new Date().getFullYear())
-              </script>
-             كل الحقوق محفوظة لدى الهيئة العمانية للاعمال الخيرية
+          <div class="row">
+            <div class="col-md-12">
+              <%- include('partials/messages'); %>
+              <div class="card">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title ">قائمة مستخدمي النظام</h4>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead class=" text-primary">
+                        <th>الرقم الوظيفي</th>
+                        <th>الاسم</th>
+                        <th>رقم الهاتف</th>
+                        <th>البريد الالكتروني</th>
+                        <th>الفئة</th>
+                        <th>ادارة المستخدم</th>
+                      </thead>
+                      <tbody>
+                        <% if(users != null) { %>
+                        <% users.forEach(u => {%>
+                          <tr>
+                            <td><%= u.id %></td>
+                            <td><%= u.name %></td>
+                            <td><%= u.phone %></td>
+                            <td><%= u.email %></td>
+                            <td>
+                              <% if(u.type === 'A') { %>مسؤول النظام<% } %>
+                              <% if(u.type === 'M') { %>مدير البحث الاجتماعي<% } %>
+                              <% if(u.type === 'R') { %>الباحث الاجتماعي<% } %>
+                            </td>
+                            <td>
+                              <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                  <i class="material-icons">settings</i>
+                                </button>
+                                <div class="dropdown-menu">
+                                  <a class="dropdown-item" href="/update-user/<%= u.id %>"">تعديل</a>
+                                  <a class="dropdown-item" href="/delete-user/<%= u.id %>" onclick="confirm('هل انت متاكد من حذف المستخدم؟')">حذف</a>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        <% });} else { %>
+                          <tr>
+                            <th colspan="4" class="text-center">لا توجد بيانات مسجلة</th>
+                          </tr>
+                        <% } %>
+                      </tbody>
+                    </table>
+                  </div>
+                  <a href="/add-user" class="btn btn-primary" role="button">اضافة مستخدم جديد</a>
+                </div>
+              </div>
             </div>
           </div>
-        </footer>
+        </div>
+        <!-- footer partial -->
+        <%- include('partials/footer'); %>
       </div>
     </div>
 

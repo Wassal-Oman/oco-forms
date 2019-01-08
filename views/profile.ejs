@@ -26,7 +26,7 @@
       </div>
 
       <!-- Sidebar Partial -->
-      <%- include('partials/admin-sidebar'); %>
+      <%- include('partials/sidebar'); %>
 
     </div>
     <div class="main-panel">
@@ -50,50 +50,50 @@
 
       <div class="content">
         <div class="container-fluid">
-            <div class="row">
-              <div class="card mx-auto">
-                <div class="card-header card-header-primary">
-                  <h4 class="card-title">الملف الشخصي للمستخدم</h4>
-                </div>
-                <div class="card-body">
-                  <form>
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">الرقم الوظيفي</label>
-                          <input type="text" class="form-control" value="<%= user.id %>" disabled>
-                        </div>
+          <div class="row">
+            <div class="card mx-auto">
+              <div class="card-header card-header-primary">
+                <h4 class="card-title">الملف الشخصي للمستخدم</h4>
+              </div>
+              <div class="card-body">
+                <form>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="bmd-label-floating">الرقم الوظيفي</label>
+                        <input type="text" class="form-control" value="<%= user.id %>" disabled>
                       </div>
                     </div>
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">اسم المستخدم</label>
-                          <input type="text" class="form-control" value="<%= user.name %>" disabled>
-                        </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="bmd-label-floating">اسم المستخدم</label>
+                        <input type="text" class="form-control" value="<%= user.name %>" disabled>
                       </div>
                     </div>
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">رقم الهاتف</label>
-                          <input type="text" class="form-control" value="<%= user.phone %>" disabled>
-                        </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="bmd-label-floating">رقم الهاتف</label>
+                        <input type="text" class="form-control" value="<%= user.phone %>" disabled>
                       </div>
                     </div>
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group">
-                          <label class="bmd-label-floating">عنوان البريد الالكتروني</label>
-                          <input type="text" class="form-control" value="<%= user.email %>" disabled>
-                        </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="bmd-label-floating">عنوان البريد الالكتروني</label>
+                        <input type="text" class="form-control" value="<%= user.email %>" disabled>
                       </div>
                     </div>
-                    <div class="clearfix"></div>
-                  </form>
-                </div>
+                  </div>
+                  <div class="clearfix"></div>
+                </form>
               </div>
             </div>
+          </div>
         </div>
         <!-- footer partial -->
         <%- include('partials/footer'); %>
