@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <!-- Head Partial -->
+    <%- include('partials/head'); %>
+
+    <title>استمارات الباحث الاجتماعي</title>
+</head>
+
+<body class="">
+  <div class="wrapper ">
+    <div class="sidebar" data-color="purple" data-background-color="white" data-image="/img/sidebar.jpg">
+
+      <!-- Logo -->
+      <div class="logo">
+        <a href="/" class="simple-text logo-normal">
+        استمارات الباحث الاجتماعي
+        </a>
+      </div>
+
+      <!-- Sidebar Partial -->
+      <% if(user.type === 'A') { %>
+        <%- include('partials/admin-sidebar'); %>
+      <% } else { %>
+        <%- include('partials/sidebar'); %>
+      <% } %>
+
+    </div>
+    <div class="main-panel">
+
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            <p class="navbar-brand">الاعدادات</p>
+          </div>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="navbar-toggler-icon icon-bar"></span>
+            <span class="navbar-toggler-icon icon-bar"></span>
+            <span class="navbar-toggler-icon icon-bar"></span>
+          </button>
+        </div>
+      </nav>
+
+
+      <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <%- include('partials/messages'); %>
+                    <div class="card">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title ">قائمة الحالات الاجتماعية</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                        <table class="table">
+                            <thead class=" text-primary">
+                                <th>الرقم المتسلسل</th>
+                                <th>الحالة الاجتماعية</th>
+                                <th>ادارة الحالات الاجتماعية</th>
+                            </thead>
+                            <tbody>
+                            <% if(categories.length > 0) { %>
+                            <% categories.forEach(c => {%>
+                                <tr>
+                                <td><%= c.id %></td>
+                                <td><%= c.name %></td>
+                                <td>
+                                    <div class="dropdown">
+                                    <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                        <i class="material-icons">settings</i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="/update-category/<%= c.id %>"">تعديل</a>
+                                        <a class="dropdown-item" href="/delete-category/<%= c.id %>" onclick="confirm('هل انت متاكد من حذف الحالة الاجتماعية')">حذف</a>
+                                    </div>
+                                    </div>
+                                </td>
+                                </tr>
+                            <% });} else { %>
+                                <tr>
+                                <th colspan="3" class="text-center">لا توجد بيانات مسجلة</th>
+                                </tr>
+                            <% } %>
+                            </tbody>
+                        </table>
+                        </div>
+                        <a href="/add-category" class="btn btn-primary" role="button">اضافة حالة اجتماعية جديدة</a>
+                    </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <%- include('partials/messages'); %>
+                    <div class="card">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title ">قائمة المحافظات</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                        <table class="table">
+                            <thead class=" text-primary">
+                                <th>الرقم المتسلسل</th>
+                                <th>المحافظة</th>
+                                <th>ادارة المحافظات</th>
+                            </thead>
+                            <tbody>
+                            <% if(governates.length > 0) { %>
+                            <% governates.forEach(g => {%>
+                                <tr>
+                                <td><%= g.id %></td>
+                                <td><%= g.name %></td>
+                                <td>
+                                    <div class="dropdown">
+                                    <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                        <i class="material-icons">settings</i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="/update-gevernate/<%= g.id %>"">تعديل</a>
+                                        <a class="dropdown-item" href="/delete-gevernate/<%= g.id %>" onclick="confirm('هل انت متاكد من حذف المحافظة')">حذف</a>
+                                    </div>
+                                    </div>
+                                </td>
+                                </tr>
+                            <% });} else { %>
+                                <tr>
+                                <th colspan="3" class="text-center">لا توجد بيانات مسجلة</th>
+                                </tr>
+                            <% } %>
+                            </tbody>
+                        </table>
+                        </div>
+                        <a href="/add-region" class="btn btn-primary" role="button">اضافة محافظة جديدة</a>
+                    </div>
+                    </div>
+                </div>
+              </div>
+        </div>
+        <!-- footer partial -->
+        <%- include('partials/footer'); %>
+      </div>
+    </div>
+
+    <!-- Bottom Partial -->
+    <%- include('partials/bottom'); %>
+</body>
+
+</html>

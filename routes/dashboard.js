@@ -9,6 +9,8 @@ const Disaster = require('../models/Disaster');
 const Mazyoona = require('../models/Mazyoona');
 const Rescue = require('../models/Rescue');
 const General = require('../models/General');
+const Category = require('../models/Category');
+const Governate = require('../models/Governate');
 
 // initialize router
 const router = express.Router();
@@ -111,7 +113,8 @@ router.get('/admin-home', sessionChecker, (req, res) => {
             disaster: '',
             mazyoona: '',
             rescue: '',
-            general: ''
+            general: '',
+            settings: ''
         };
 
         // get all statistics
@@ -146,7 +149,8 @@ router.get('/admin-profile', sessionChecker, (req, res) => {
             disaster: '',
             mazyoona: '',
             rescue: '',
-            general: ''
+            general: '',
+            settings: ''
         };
 
         // render home page
@@ -174,7 +178,8 @@ router.get('/users', sessionChecker, (req, res) => {
                 disaster: '',
                 mazyoona: '',
                 rescue: '',
-                general: ''
+                general: '',
+                settings: ''
             };
 
             res.render('users', {
@@ -203,7 +208,8 @@ router.get('/add-user', sessionChecker, (req, res) => {
             disaster: '',
             mazyoona: '',
             rescue: '',
-            general: ''
+            general: '',
+            settings: ''
         };
 
         res.render('add-user', {
@@ -291,7 +297,12 @@ router.get('/update-user/:id', sessionChecker, (req, res) => {
                 const pages = {
                     home: '',
                     profile: '',
-                    users: 'active'
+                    users: 'active',
+                    disaster: '',
+                    mazyoona: '',
+                    rescue: '',
+                    general: '',
+                    settings: ''
                 };
 
                 // render update user page
@@ -334,6 +345,43 @@ router.post('/update-user/', sessionChecker, (req, res) => {
             console.log(err);
             req.flash('error', 'لا يمكن تشفير كلمة المرور');
             res.redirect('/users');
+        });
+    }
+});
+
+// settings route
+router.get('/settings', sessionChecker, (req, res) => {
+    if(req.session.user.type !== 'A') {
+        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
+        res.redirect('/logout');
+    } else {
+
+        // promises
+        const categories = getCategories();
+        const governates = getGovenates();
+
+        Promise.all([categories, governates]).then(val => {
+            // set active pages
+            const pages = {
+                home: '',
+                profile: '',
+                users: '',
+                disaster: '',
+                mazyoona: '',
+                rescue: '',
+                general: '',
+                settings: 'active'
+            };
+
+            res.render('settings', {
+                user: req.session.user,
+                pages,
+                categories: val[0],
+                governates: val[1]
+            });
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/500');
         });
     }
 });
@@ -701,6 +749,46 @@ function getGeneralForms() {
 function getGeneralFormsCount() {
     return new Promise((resolve, reject) => {
         General.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getCategories() {
+    return new Promise((resolve, reject) => {
+        Category.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getCategoriesCount() {
+    return new Promise((resolve, reject) => {
+        Category.findAndCountAll().then(val => {
+            return resolve(val.count);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getGovenates() {
+    return new Promise((resolve, reject) => {
+        Governate.findAll().then(val => {
+            return resolve(val);
+        }).catch(err => {
+            return reject(err);
+        });
+    });
+}
+
+function getGovenatesCount() {
+    return new Promise((resolve, reject) => {
+        Governate.findAndCountAll().then(val => {
             return resolve(val.count);
         }).catch(err => {
             return reject(err);

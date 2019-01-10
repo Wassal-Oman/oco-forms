@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const settings = require("../config/settings");
 const mail = require('../config/sendemail');
+const Category = require('../models/Category');
 const router = express.Router();
 
 // get JWT secret key
@@ -169,6 +170,24 @@ router.post('/reset-password', (req, res) => {
                 });
             });
         }
+    });
+});
+
+// get categories data
+router.get('/categories', (req, res) => {
+    // load all avaliable categories
+    Category.findAll().then(val => {
+        res.json({
+            status: "success",
+            message: "تم جلب بيانات الحالات الاجتماعية",
+            data: val
+        });
+    }).catch(err => {
+        res.json({
+            status: "error",
+            message: "حدث خطا في قاعدة البيانات",
+            data: err
+        });
     });
 });
 
