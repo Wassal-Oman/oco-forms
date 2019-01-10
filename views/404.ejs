@@ -1,2 +1,40 @@
-<h1>404</h1>
-<h3>PAGE NOT FOUND!</h3>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <!-- Head Partial -->
+    <%- include('partials/head'); %>
+
+    <title>الصفحة غير موجودة</title>
+    <style>
+      .card {
+          width: 500px;
+          margin-top: 100px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="card mx-auto">
+            <div class="card-header card-header-primary text-center">
+              <h1 class="card-title text-center">
+                404
+              </h1>
+            </div>
+            <div class="card-body text-center">
+              <h3>الصفحة غير موجودة</h3>
+              <a href="/" class="btn btn-primary pull-center">
+                رجوع للقائمة الرئيسية
+              </a>
+              <div class="clearfix"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bottom Partial -->
+    <%- include('partials/bottom'); %>
+  </body>
+</html>

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const encrypt = require('../config/encryption');
 const settings = require('../config/settings');
+const mail = require('../config/sendemail');
 const Disaster = require('../models/Disaster');
 const Mazyoona = require('../models/Mazyoona');
 const Rescue = require('../models/Rescue');
@@ -14,6 +15,9 @@ const router = express.Router();
 
 // get JWT secret key
 const jwtSecretKey = settings.JWT_SECRET_KEY;
+
+// get host server
+const host = settings.HOST;
 
 // middleware function to check for logged-in users
 const sessionChecker = (req, res, next) => {
@@ -89,39 +93,74 @@ router.post('/login', (req, res) => {
 // admin home route
 router.get('/admin-home', sessionChecker, (req, res) => {
 
-    // set active pages
-    const pages = {
-        home: 'active',
-        profile: '',
-        users: ''
-    };
+    if(req.session.user.type !== 'A') {
+        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
+        res.redirect('/logout');
+    } else {
+        // define promises
+        const disasterPromise = getDisasterFormsCount();
+        const mazyoonaPromise = getMazyoonaFormsCount();
+        const rescuePromise = getRescueFormsCount();
+        const generalPromise = getGeneralFormsCount();
 
-    // render home page
-    res.render('admin-home', {
-        user: req.session.user,
-        pages
-    });
+        // set active pages
+        const pages = {
+            home: 'active',
+            profile: '',
+            users: '',
+            disaster: '',
+            mazyoona: '',
+            rescue: '',
+            general: ''
+        };
+
+        // get all statistics
+        Promise.all([disasterPromise, mazyoonaPromise, rescuePromise, generalPromise]).then(val => {
+            // render home page
+            res.render('admin-home', {
+                user: req.session.user,
+                pages,
+                disasterCount: val[0],
+                mazyoonaCount: val[1],
+                rescueCount: val[2],
+                generalCount: val[3]
+            });
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/500');
+        });
+    }
 });
 
 // admin profile route
 router.get('/admin-profile', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: 'active',
-        users: ''
-    };
+    if(req.session.user.type !== 'A') {
+        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
+        res.redirect('/logout');
+    } else {
+        // set active pages
+        const pages = {
+            home: '',
+            profile: 'active',
+            users: '',
+            disaster: '',
+            mazyoona: '',
+            rescue: '',
+            general: ''
+        };
 
-    // render home page
-    res.render('admin-profile', {
-        user: req.session.user,
-        pages
-    });
+        // render home page
+        res.render('admin-profile', {
+            user: req.session.user,
+            pages
+        });
+    }
 });
 
 // users route
 router.get('/users', sessionChecker, (req, res) => {
     if(req.session.user.type !== 'A') {
+        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
         res.redirect('/logout');
     } else {
 
@@ -131,7 +170,11 @@ router.get('/users', sessionChecker, (req, res) => {
             const pages = {
                 home: '',
                 profile: '',
-                users: 'active'
+                users: 'active',
+                disaster: '',
+                mazyoona: '',
+                rescue: '',
+                general: ''
             };
 
             res.render('users', {
@@ -149,13 +192,18 @@ router.get('/users', sessionChecker, (req, res) => {
 // add user GET
 router.get('/add-user', sessionChecker, (req, res) => {
     if(req.session.user.type !== 'A') {
+        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
         res.redirect('/logout');
     } else {
         // set active pages
         const pages = {
             home: '',
             profile: '',
-            users: 'active'
+            users: 'active',
+            disaster: '',
+            mazyoona: '',
+            rescue: '',
+            general: ''
         };
 
         res.render('add-user', {
@@ -168,6 +216,7 @@ router.get('/add-user', sessionChecker, (req, res) => {
 // add user POST
 router.post('/add-user', sessionChecker, (req, res) => {
     if(req.session.user.type !== 'A') {
+        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
         res.redirect('/logout');
     } else {
         // get user inputs
@@ -196,6 +245,7 @@ router.post('/add-user', sessionChecker, (req, res) => {
 // delete user
 router.get('/delete-user/:id', sessionChecker, (req, res) => {
     if(req.session.user.type !== 'A') {
+        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
         res.redirect('/logout');
     } else {
         // get user id
@@ -226,6 +276,7 @@ router.get('/delete-user/:id', sessionChecker, (req, res) => {
 // update user route GET
 router.get('/update-user/:id', sessionChecker, (req, res) => {
     if(req.session.user.type !== 'A') {
+        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
         res.redirect('/logout');
     } else {
         // get user data
@@ -261,15 +312,16 @@ router.get('/update-user/:id', sessionChecker, (req, res) => {
 // update user route POST
 router.post('/update-user/', sessionChecker, (req, res) => {
     if(req.session.user.type !== 'A') {
+        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
         res.redirect('/logout');
     } else {
         // get updated data
-        const { id, name, phone, email, password } = req.body;
+        const { id, name, phone, email, password, type } = req.body;
 
         // encrypt new password
         encrypt.hashData(password).then(hash => {
             // update user based on id
-            User.update({ name, phone, email, password: hash }, { where: { id }}).then(val => {
+            User.update({ name, phone, email, password: hash, type }, { where: { id }}).then(val => {
                 console.log(val);
                 req.flash('success', 'تم تعديل بيانات المستخدم بنجاح');
                 res.redirect('/users');
@@ -421,7 +473,6 @@ router.get('/general-form', sessionChecker, (req, res) => {
 });
 
 /* ***** common routes ***** */
-
 // reset password for API
 router.get('/reset-password/:id/:token', (req, res) => {
     // get id and token
@@ -488,6 +539,56 @@ router.post('/confirm-password', (req, res) => {
             });
         }
     }
+});
+
+// forget password route GET
+router.get('/forget-password', (req, res) => {
+    res.render('forget-password');
+});
+
+// forget password route POST
+router.post('/forget-password', (req, res) => {
+    // get employee id
+    const id = req.body.id;
+
+    // check user if exists
+    User.findOne({ where: { id }}).then(user => {
+        if(!user) {
+            req.flash('error', 'المستخدم غير مسجل في النظام');
+            res.redirect('/forget-password');
+        } else {
+            // create a payload
+            const { id, name, email } = user;
+            const payload = { id, name, email };
+
+            // send an email request for reseting password
+            jwt.sign({ payload }, jwtSecretKey, { expiresIn: "1h" }, (err, token) => {
+                if(err) {
+                    req.flash('error', 'لا يمكن تعيين رمز استخدام النظام');
+                    res.redirect('/forget-password');
+                } else {
+                    // send an email
+                    mail(email, 'اعادة تعيين كلمة المرور', `<p>انقر الرابط التالي لاعادة تعيين كلمة المرور</p><br><a href='${host}/reset-password/${id}/${token}'>اضغط هنا</a>`).then(val => {
+                        if(val) {
+                            req.flash('success', 'تم ارسال ايميل لاعادة نعيين كلمة المرور');
+                            res.redirect('/login');
+                        } else {
+                            req.flash('error', 'حدث خطا في الخادم .. لا يمكن ارسال ايميل لاعادة تعيين كلمة المرور');
+                            res.redirect('/login');
+                        }
+                    }).catch(err => {
+                        console.log(err);
+                        req.flash('error', 'حدث خطا في الخادم .. لا يمكن ارسال ايميل لاعادة تعيين كلمة المرور');
+                        res.redirect('/login');
+                    });
+                }
+            });
+        }
+    }).catch(err => {
+        console.log(err);
+        req.flash('error', 'حدث خطا في قاعدة البيانات');
+        res.redirect('/forget-password');
+    });
 });
 
 // logout route

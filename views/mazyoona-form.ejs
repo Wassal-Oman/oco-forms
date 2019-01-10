@@ -21,7 +21,11 @@
       </div>
 
       <!-- Sidebar Partial -->
-      <%- include('partials/sidebar'); %>
+      <% if(user.type === 'A') { %>
+        <%- include('partials/admin-sidebar'); %>
+      <% } else { %>
+        <%- include('partials/sidebar'); %>
+      <% } %>
 
     </div>
     <div class="main-panel">

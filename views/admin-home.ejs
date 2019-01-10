@@ -45,13 +45,81 @@
 
       <div class="content">
         <div class="container-fluid">
-          <div class="card card-profile mx-auto">
-            <div class="card-avatar">
-              <img class="img" src="/img/logo.png" />
+          <div class="row">
+            <div class="col-lg-3 col-md-6 col-sm-6">
+              <div class="card card-stats">
+                <div class="card-header card-header-warning card-header-icon">
+                  <div class="card-icon">
+                    <i class="material-icons">flash_on</i>
+                  </div>
+                  <p class="card-category">الكوارث الطبيعية</p>
+                  <h3 class="card-title"><%= disasterCount %></h3>
+                </div>
+                <div class="card-footer">
+                  <div class="stats">
+                    <i class="material-icons">file_copy</i>عدد استمارات الكوارث الطبيعية
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="card-body">
-              <h3 class="card-title">الهيئة العمانية للاعمال الخيرية</h3>
-              <h4>مرحبا بك في لوحة التحكم الخاصة باستمارات الباحث الاجتماعي</h4>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+              <div class="card card-stats">
+                <div class="card-header card-header-success card-header-icon">
+                  <div class="card-icon">
+                    <i class="material-icons">place</i>
+                  </div>
+                  <p class="card-category">المزيونة</p>
+                  <h3 class="card-title"><%= mazyoonaCount %></h3>
+                </div>
+                <div class="card-footer">
+                  <div class="stats">
+                    <i class="material-icons">file_copy</i>عدد استمارات المزيونة
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+              <div class="card card-stats">
+                <div class="card-header card-header-danger card-header-icon">
+                  <div class="card-icon">
+                    <i class="material-icons">spa</i>
+                  </div>
+                  <p class="card-category">الاستماراة الاغاثية</p>
+                  <h3 class="card-title"><%= rescueCount %></h3>
+                </div>
+                <div class="card-footer">
+                  <div class="stats">
+                    <i class="material-icons">file_copy</i>عدد الاستمارات العامة 
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+              <div class="card card-stats">
+                <div class="card-header card-header-info card-header-icon">
+                  <div class="card-icon">
+                    <i class="material-icons">public</i>
+                  </div>
+                  <p class="card-category">الاستمارة العامة</p>
+                  <h3 class="card-title"><%= generalCount %></h3>
+                </div>
+                <div class="card-footer">
+                  <div class="stats">
+                    <i class="material-icons">file_copy</i>عدد الاستمارات
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="card card-profile mx-auto">
+              <div class="card-avatar">
+                <img class="img" src="/img/logo.png" />
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">الهيئة العمانية للاعمال الخيرية</h3>
+                <h4>مرحبا بك في لوحة التحكم الخاصة باستمارات الباحث الاجتماعي</h4>
+              </div>
             </div>
           </div>
         </div>
