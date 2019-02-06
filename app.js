@@ -31,7 +31,7 @@ app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 // notification messages
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     res.locals.warning = req.flash('warning');

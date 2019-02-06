@@ -5,12 +5,9 @@ const User = require('../models/User');
 const encrypt = require('../config/encryption');
 const settings = require('../config/settings');
 const mail = require('../config/sendemail');
-const Disaster = require('../models/Disaster');
-const Mazyoona = require('../models/Mazyoona');
-const Rescue = require('../models/Rescue');
-const General = require('../models/General');
-const Category = require('../models/Category');
-const Governate = require('../models/Governate');
+const AdminController = require('../controllers/AdminController');
+const ManagerController = require('../controllers/ManagerController');
+const ResearcherController = require('../controllers/ResearcherController');
 
 // initialize router
 const router = express.Router();
@@ -30,24 +27,61 @@ const sessionChecker = (req, res, next) => {
     }    
 };
 
-// default route
+/* ***** General Routes ***** */
+// default
 router.get('/', sessionChecker, (req, res) => {
-    res.redirect('/home');
-});
-
-// login routes
-router.get('/login', (req, res) => {
+    // get user type
     if(req.session.user) {
-        res.redirect('/home');
-    } 
-    res.render('login');
+        switch(req.session.user.type) {
+            case 'A': 
+                res.redirect('/admin');
+                break;
+            case 'M':
+                res.redirect('/manager');
+                break;
+            case 'R':
+                res.redirect('/researcher');
+                break;
+            default:
+                res.redirect('/logout');
+        }
+    } else {
+        res.redirect('/login');
+    }
 });
 
+// login - GET
+router.get('/login', (req, res) => {
+
+    // check if user exists
+    if(req.session.user) {
+        // get user type
+        switch(req.session.user.type) {
+            case 'A': 
+                res.redirect('/admin');
+                break;
+            case 'M':
+                res.redirect('/manager');
+                break;
+            case 'R':
+                res.redirect('/researcher');
+                break;
+            default:
+                res.redirect('/logout');
+                break;
+        }
+    } else {
+        res.render('login');
+    }
+});
+
+// login - POST
 router.post('/login', (req, res) => {
     // get employee number and password
-    const { id, password, type } = req.body;
+    const { id, password } = req.body;
 
-    User.findOne({ where: { id, type } }).then((user) => {
+    // fetch user data
+    User.findOne({ where: { id } }).then((user) => {
         if (!user) {
             req.flash('error', 'المستخدم غير مسجل في النظام');
             res.redirect('/login');
@@ -59,18 +93,18 @@ router.post('/login', (req, res) => {
                     res.redirect('/login');
                 } else {
                     // redirect based on user type
-                    switch(type) {
+                    switch(user.dataValues.type) {
                         case 'A': 
                             req.session.user = user.dataValues;
-                            res.redirect('/admin-home');
+                            res.redirect('/admin');
                             break;
                         case 'M':
                             req.session.user = user.dataValues;
-                            res.redirect('/home');
+                            res.redirect('/manager');
                             break;
                         case 'R':
                             req.session.user = user.dataValues;
-                            res.redirect('/home');
+                            res.redirect('/researcher');
                             break;
                         default:
                             res.redirect('/logout');
@@ -91,434 +125,35 @@ router.post('/login', (req, res) => {
 });
 
 /* ***** admin routes ***** */
+router.get('/admin', sessionChecker, AdminController.home);
+router.get('/admin/profile', sessionChecker, AdminController.profile);
+router.get('/admin/users', sessionChecker, AdminController.users);
+router.get('/admin/users/add', sessionChecker, AdminController.addUserGet);
+router.post('/admin/users/add', sessionChecker, AdminController.addUserPost);
+router.get('/admin/users/:id/delete', sessionChecker, AdminController.deleteUser);
+router.get('/admin/users/:id/edit', sessionChecker, AdminController.updateUserGet);
+router.post('/admin/users/edit', sessionChecker, AdminController.updateUserPost);
+router.get('/admin/settings', sessionChecker, AdminController.settings);
+router.get('/admin/disasters', sessionChecker, AdminController.getDisasterForms);
+router.get('/admin/mazyoonas', sessionChecker, AdminController.getMazyoonaForms);
+router.get('/admin/rescues', sessionChecker, AdminController.getRescueForms);
+router.get('/admin/generals', sessionChecker, AdminController.getGeneralForms);
 
-// admin home route
-router.get('/admin-home', sessionChecker, (req, res) => {
+/* ***** manager routes ***** */
+router.get('/manager', sessionChecker, ManagerController.home);
+router.get('/manager/profile', sessionChecker, ManagerController.profile);
+router.get('/manager/disasters', sessionChecker, ManagerController.getDisasterForms);
+router.get('/manager/mazyoonas', sessionChecker, ManagerController.getMazyoonaForms);
+router.get('/manager/rescues', sessionChecker, ManagerController.getRescueForms);
+router.get('/manager/generals', sessionChecker, ManagerController.getGeneralForms);
 
-    if(req.session.user.type !== 'A') {
-        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
-        res.redirect('/logout');
-    } else {
-        // define promises
-        const disasterPromise = getDisasterFormsCount();
-        const mazyoonaPromise = getMazyoonaFormsCount();
-        const rescuePromise = getRescueFormsCount();
-        const generalPromise = getGeneralFormsCount();
-
-        // set active pages
-        const pages = {
-            home: 'active',
-            profile: '',
-            users: '',
-            disaster: '',
-            mazyoona: '',
-            rescue: '',
-            general: '',
-            settings: ''
-        };
-
-        // get all statistics
-        Promise.all([disasterPromise, mazyoonaPromise, rescuePromise, generalPromise]).then(val => {
-            // render home page
-            res.render('admin-home', {
-                user: req.session.user,
-                pages,
-                disasterCount: val[0],
-                mazyoonaCount: val[1],
-                rescueCount: val[2],
-                generalCount: val[3]
-            });
-        }).catch(err => {
-            console.log(err);
-            res.redirect('/500');
-        });
-    }
-});
-
-// admin profile route
-router.get('/admin-profile', sessionChecker, (req, res) => {
-    if(req.session.user.type !== 'A') {
-        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
-        res.redirect('/logout');
-    } else {
-        // set active pages
-        const pages = {
-            home: '',
-            profile: 'active',
-            users: '',
-            disaster: '',
-            mazyoona: '',
-            rescue: '',
-            general: '',
-            settings: ''
-        };
-
-        // render home page
-        res.render('admin-profile', {
-            user: req.session.user,
-            pages
-        });
-    }
-});
-
-// users route
-router.get('/users', sessionChecker, (req, res) => {
-    if(req.session.user.type !== 'A') {
-        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
-        res.redirect('/logout');
-    } else {
-
-        //get users
-        getUsers().then(val => {
-            // set active pages
-            const pages = {
-                home: '',
-                profile: '',
-                users: 'active',
-                disaster: '',
-                mazyoona: '',
-                rescue: '',
-                general: '',
-                settings: ''
-            };
-
-            res.render('users', {
-                user: req.session.user,
-                pages,
-                users: val
-            });
-        }).catch(err => {
-            console.log(err);
-            res.redirect('/500');
-        });
-    }
-});
-
-// add user GET
-router.get('/add-user', sessionChecker, (req, res) => {
-    if(req.session.user.type !== 'A') {
-        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
-        res.redirect('/logout');
-    } else {
-        // set active pages
-        const pages = {
-            home: '',
-            profile: '',
-            users: 'active',
-            disaster: '',
-            mazyoona: '',
-            rescue: '',
-            general: '',
-            settings: ''
-        };
-
-        res.render('add-user', {
-            user: req.session.user,
-            pages
-        });
-    }
-});
-
-// add user POST
-router.post('/add-user', sessionChecker, (req, res) => {
-    if(req.session.user.type !== 'A') {
-        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
-        res.redirect('/logout');
-    } else {
-        // get user inputs
-        const { id, name, phone, email, type, password } = req.body;
-
-        // add new user
-        User.create({
-            id,
-            name,
-            phone,
-            email,
-            password,
-            type
-        }).then(val => {
-            console.log(val);
-            req.flash('success', 'تم تسجيل مستخدم جديد');
-            res.redirect('/add-user');
-        }).catch(err => {
-            console.log(err);
-            req.flash('error', 'حدث خطأ اثناء تسجيل المستخدم');
-            res.redirect('/add-user');
-        });
-    }
-});
-
-// delete user
-router.get('/delete-user/:id', sessionChecker, (req, res) => {
-    if(req.session.user.type !== 'A') {
-        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
-        res.redirect('/logout');
-    } else {
-        // get user id
-        const id = req.params.id;
-
-        // delete user based on id
-        if(id != req.session.user.id) {
-            User.destroy({ where: { id: id } }).then(val => {
-                if(val > 0) {
-                    req.flash('success', 'تم حذف المستخدم بنجاح');
-                    res.redirect('/users');
-                } else {
-                    req.flash('warning', 'لم يتم حذف المستخدم');
-                    res.redirect('/users');
-                }
-            }).catch(err => {
-                console.log(err);
-                req.flash('warning', 'لم يتم حذف المستخدم');
-                res.redirect('/users');
-            });
-        } else {
-            req.flash('error', 'لا يمكن حذف المستخدم الحالي');
-            res.redirect('/users');
-        }
-    }
-});
-
-// update user route GET
-router.get('/update-user/:id', sessionChecker, (req, res) => {
-    if(req.session.user.type !== 'A') {
-        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
-        res.redirect('/logout');
-    } else {
-        // get user data
-        const id = req.params.id;
-
-        User.findOne({ where: { id } }).then(user => {
-            if(!user) {
-                req.flash('error', 'لا يمكن تعديل بيانات هذا المستخدم');
-                res.redirect('/users');
-            } else {
-                // active page
-                const pages = {
-                    home: '',
-                    profile: '',
-                    users: 'active',
-                    disaster: '',
-                    mazyoona: '',
-                    rescue: '',
-                    general: '',
-                    settings: ''
-                };
-
-                // render update user page
-                res.render('update-user', {
-                    user: req.session.user,
-                    pages,
-                    employee: user.dataValues
-                });
-            }
-        }).catch(err => {
-            console.log(err);
-            req.flash('error', 'لا يمكن تعديل بيانات هذا المستخدم');
-            res.redirect('/users');
-        });
-    }
-});
-
-// update user route POST
-router.post('/update-user/', sessionChecker, (req, res) => {
-    if(req.session.user.type !== 'A') {
-        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
-        res.redirect('/logout');
-    } else {
-        // get updated data
-        const { id, name, phone, email, password, type } = req.body;
-
-        // encrypt new password
-        encrypt.hashData(password).then(hash => {
-            // update user based on id
-            User.update({ name, phone, email, password: hash, type }, { where: { id }}).then(val => {
-                console.log(val);
-                req.flash('success', 'تم تعديل بيانات المستخدم بنجاح');
-                res.redirect('/users');
-            }).catch(err => {
-                console.log(err);
-                req.flash('error', 'لا يمكن تعديل بيانات المستخدم');
-                res.redirect('/users');
-            });
-        }).catch(err => {
-            console.log(err);
-            req.flash('error', 'لا يمكن تشفير كلمة المرور');
-            res.redirect('/users');
-        });
-    }
-});
-
-// settings route
-router.get('/settings', sessionChecker, (req, res) => {
-    if(req.session.user.type !== 'A') {
-        req.flash('warning', 'لا تملك تصلاحيات مسؤول النظام');
-        res.redirect('/logout');
-    } else {
-
-        // promises
-        const categories = getCategories();
-        const governates = getGovenates();
-
-        Promise.all([categories, governates]).then(val => {
-            // set active pages
-            const pages = {
-                home: '',
-                profile: '',
-                users: '',
-                disaster: '',
-                mazyoona: '',
-                rescue: '',
-                general: '',
-                settings: 'active'
-            };
-
-            res.render('settings', {
-                user: req.session.user,
-                pages,
-                categories: val[0],
-                governates: val[1]
-            });
-        }).catch(err => {
-            console.log(err);
-            res.redirect('/500');
-        });
-    }
-});
-
-/* ***** manager & researcher routes ***** */
-
-// home route
-router.get('/home', sessionChecker, (req, res) => {
-
-    // define promises
-    const disasterPromise = getDisasterFormsCount();
-    const mazyoonaPromise = getMazyoonaFormsCount();
-    const rescuePromise = getRescueFormsCount();
-    const generalPromise = getGeneralFormsCount();
-
-    // set active pages
-    const pages = {
-        home: 'active',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
-
-    // get all statistics
-    Promise.all([disasterPromise, mazyoonaPromise, rescuePromise, generalPromise]).then(val => {
-        // render home page
-        res.render('home', {
-            user: req.session.user,
-            pages,
-            disasterCount: val[0],
-            mazyoonaCount: val[1],
-            rescueCount: val[2],
-            generalCount: val[3]
-        });
-    }).catch(err => {
-        console.log(err);
-        res.redirect('/500');
-    });
-});
-
-// profile route
-router.get('/profile', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: 'active',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
-
-    // render home page
-    res.render('profile', {
-        user: req.session.user,
-        pages
-    });
-});
-
-// disaster route
-router.get('/disaster-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: 'active',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
-
-    // render page
-    res.render('disaster-form', {
-        user: req.session.user,
-        pages,
-        disasters: null
-    });
-});
-
-// mazyoona route
-router.get('/mazyoona-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: 'active',
-        rescue: '',
-        general: ''
-    };
-
-    // render page
-    res.render('mazyoona-form', {
-        user: req.session.user,
-        pages
-    });
-});
-
-// rescue route
-router.get('/rescue-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: 'active',
-        general: ''
-    };
-
-    // render page
-    res.render('rescue-form', {
-        user: req.session.user,
-        pages
-    });
-});
-
-// general route
-router.get('/general-form', sessionChecker, (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: 'active'
-    };
-
-    // render page
-    res.render('general-form', {
-        user: req.session.user,
-        pages
-    });
-});
+/* ***** researcher routes ***** */
+router.get('/researcher', sessionChecker, ResearcherController.home);
+router.get('/researcher/profile', sessionChecker, ResearcherController.profile);
+router.get('/researcher/disasters', sessionChecker, ResearcherController.getDisasterForms);
+router.get('/researcher/mazyoonas', sessionChecker, ResearcherController.getMazyoonaForms);
+router.get('/researcher/rescues', sessionChecker, ResearcherController.getRescueForms);
+router.get('/researcher/generals', sessionChecker, ResearcherController.getGeneralForms);
 
 /* ***** common routes ***** */
 // reset password for API
@@ -565,7 +200,7 @@ router.post('/confirm-password', (req, res) => {
             // encrypt password
             encrypt.hashData(password).then(hash => {
                 // update user password
-                User.update({ password: hash }, { where: { id: id }}).then(val => {
+                User.update({ password: hash }, { where: { id }}).then(val => {
                     console.log(val);
                     res.render('message', {
                         title: 'تم بنجاح',
@@ -654,147 +289,6 @@ router.get('/500', (req, res) => {
 router.use((req, res, next) => {
     res.status(404).render('404');
 });
-
-/* ***** Helper Functions ***** */
-function getUsers() {
-    return new Promise((resolve, reject) => {
-        User.findAll().then(val => {
-            return resolve(val);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getUsersCount() {
-    return new Promise((resolve, reject) => {
-        User.findAndCountAll().then(val => {
-            return resolve(val.count);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getDisasterForms() {
-    return new Promise((resolve, reject) => {
-        Disaster.findAll().then(val => {
-            return resolve(val);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getDisasterFormsCount() {
-    return new Promise((resolve, reject) => {
-        Disaster.findAndCountAll().then(val => {
-            return resolve(val.count);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getMazyoonaForms() {
-    return new Promise((resolve, reject) => {
-        Mazyoona.findAll().then(val => {
-            return resolve(val);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getMazyoonaFormsCount() {
-    return new Promise((resolve, reject) => {
-        Mazyoona.findAndCountAll().then(val => {
-            return resolve(val.count);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getRescueForms() {
-    return new Promise((resolve, reject) => {
-        Rescue.findAll().then(val => {
-            return resolve(val);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getRescueFormsCount() {
-    return new Promise((resolve, reject) => {
-        Rescue.findAndCountAll().then(val => {
-            return resolve(val.count);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getGeneralForms() {
-    return new Promise((resolve, reject) => {
-        General.findAll().then(val => {
-            return resolve(val);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getGeneralFormsCount() {
-    return new Promise((resolve, reject) => {
-        General.findAndCountAll().then(val => {
-            return resolve(val.count);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getCategories() {
-    return new Promise((resolve, reject) => {
-        Category.findAll().then(val => {
-            return resolve(val);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getCategoriesCount() {
-    return new Promise((resolve, reject) => {
-        Category.findAndCountAll().then(val => {
-            return resolve(val.count);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getGovenates() {
-    return new Promise((resolve, reject) => {
-        Governate.findAll().then(val => {
-            return resolve(val);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
-
-function getGovenatesCount() {
-    return new Promise((resolve, reject) => {
-        Governate.findAndCountAll().then(val => {
-            return resolve(val.count);
-        }).catch(err => {
-            return reject(err);
-        });
-    });
-}
 
 // export router
 module.exports = router;
