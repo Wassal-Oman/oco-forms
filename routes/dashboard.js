@@ -127,33 +127,59 @@ router.post('/login', (req, res) => {
 /* ***** admin routes ***** */
 router.get('/admin', sessionChecker, AdminController.home);
 router.get('/admin/profile', sessionChecker, AdminController.profile);
-router.get('/admin/users', sessionChecker, AdminController.users);
-router.get('/admin/users/add', sessionChecker, AdminController.addUserGet);
-router.post('/admin/users/add', sessionChecker, AdminController.addUserPost);
+router.get('/admin/users', sessionChecker, AdminController.getUsers);
+router.get('/admin/users/add', sessionChecker, AdminController.addUser);
+router.post('/admin/users/store', sessionChecker, AdminController.storeUser);
 router.get('/admin/users/:id/delete', sessionChecker, AdminController.deleteUser);
-router.get('/admin/users/:id/edit', sessionChecker, AdminController.updateUserGet);
-router.post('/admin/users/edit', sessionChecker, AdminController.updateUserPost);
+router.get('/admin/users/:id/edit', sessionChecker, AdminController.editUser);
+router.post('/admin/users/update', sessionChecker, AdminController.updateUser);
 router.get('/admin/settings', sessionChecker, AdminController.settings);
-router.get('/admin/disasters', sessionChecker, AdminController.getDisasterForms);
-router.get('/admin/mazyoonas', sessionChecker, AdminController.getMazyoonaForms);
-router.get('/admin/rescues', sessionChecker, AdminController.getRescueForms);
-router.get('/admin/generals', sessionChecker, AdminController.getGeneralForms);
+router.get('/admin/categories/add', sessionChecker, AdminController.addCategory);
+router.post('/admin/categories/store', sessionChecker, AdminController.storeCategory);
+router.get('/admin/categories/:id/delete', sessionChecker, AdminController.deleteCategory);
+router.get('/admin/categories/:id/edit', sessionChecker, AdminController.editCategory);
+router.post('/admin/categories/update', sessionChecker, AdminController.updateCategory);
+router.get('/admin/governates/add', sessionChecker, AdminController.addGovernate);
+router.post('/admin/governates/store', sessionChecker, AdminController.storeGovernate);
+router.get('/admin/governates/:id/delete', sessionChecker, AdminController.deleteGovernate);
+router.get('/admin/governates/:id/edit', sessionChecker, AdminController.editGovernate);
+router.post('/admin/governates/update', sessionChecker, AdminController.updateGovernate);
+router.get('/admin/disasters', sessionChecker, AdminController.getDisasters);
+router.get('/admin/disasters/:id', sessionChecker, AdminController.getDisaster);
+router.get('/admin/disasters/:id/delete', sessionChecker, AdminController.deleteDisaster);
+router.get('/admin/disasters/:id/edit', sessionChecker, AdminController.editDisaster);
+router.post('/admin/disasters/update', sessionChecker, AdminController.updateDisaster);
+router.get('/admin/mazyoonas', sessionChecker, AdminController.getMazyoonas);
+router.get('/admin/mazyoonas/:id', sessionChecker, AdminController.getMazyoona);
+router.get('/admin/mazyoonas/:id/delete', sessionChecker, AdminController.deleteMazyoona);
+router.get('/admin/mazyoonas/:id/edit', sessionChecker, AdminController.editMazyoona);
+router.post('/admin/mazyoonas/update', sessionChecker, AdminController.updateMazyoona);
+router.get('/admin/rescues', sessionChecker, AdminController.getRescues);
+router.get('/admin/rescues/:id', sessionChecker, AdminController.getRescue);
+router.get('/admin/rescues/:id/delete', sessionChecker, AdminController.deleteRescue);
+router.get('/admin/rescues/:id/edit', sessionChecker, AdminController.editRescue);
+router.post('/admin/rescues/update', sessionChecker, AdminController.updateRescue);
+router.get('/admin/generals', sessionChecker, AdminController.getGenerals);
+router.get('/admin/generals/:id', sessionChecker, AdminController.getGeneral);
+router.get('/admin/generals/:id/delete', sessionChecker, AdminController.deleteGeneral);
+router.get('/admin/generals/:id/edit', sessionChecker, AdminController.editGeneral);
+router.post('/admin/generals/update', sessionChecker, AdminController.updateGeneral);
 
 /* ***** manager routes ***** */
 router.get('/manager', sessionChecker, ManagerController.home);
 router.get('/manager/profile', sessionChecker, ManagerController.profile);
-router.get('/manager/disasters', sessionChecker, ManagerController.getDisasterForms);
-router.get('/manager/mazyoonas', sessionChecker, ManagerController.getMazyoonaForms);
-router.get('/manager/rescues', sessionChecker, ManagerController.getRescueForms);
-router.get('/manager/generals', sessionChecker, ManagerController.getGeneralForms);
+router.get('/manager/disasters', sessionChecker, ManagerController.getDisasters);
+router.get('/manager/mazyoonas', sessionChecker, ManagerController.getMazyoonas);
+router.get('/manager/rescues', sessionChecker, ManagerController.getRescues);
+router.get('/manager/generals', sessionChecker, ManagerController.getGenerals);
 
 /* ***** researcher routes ***** */
 router.get('/researcher', sessionChecker, ResearcherController.home);
 router.get('/researcher/profile', sessionChecker, ResearcherController.profile);
-router.get('/researcher/disasters', sessionChecker, ResearcherController.getDisasterForms);
-router.get('/researcher/mazyoonas', sessionChecker, ResearcherController.getMazyoonaForms);
-router.get('/researcher/rescues', sessionChecker, ResearcherController.getRescueForms);
-router.get('/researcher/generals', sessionChecker, ResearcherController.getGeneralForms);
+router.get('/researcher/disasters', sessionChecker, ResearcherController.getDisasters);
+router.get('/researcher/mazyoonas', sessionChecker, ResearcherController.getMazyoonas);
+router.get('/researcher/rescues', sessionChecker, ResearcherController.getRescues);
+router.get('/researcher/generals', sessionChecker, ResearcherController.getGenerals);
 
 /* ***** common routes ***** */
 // reset password for API

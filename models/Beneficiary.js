@@ -35,6 +35,11 @@ const Beneficiary = sequelize.define('beneficiaries', {
         allowNull: false,
         autoIncrement: true
     },
+    file_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        unique: true
+    },
     name: {
         type: Sequelize.STRING,
         unique: false,

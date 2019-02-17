@@ -21,11 +21,7 @@
       </div>
 
       <!-- Sidebar Partial -->
-      <% if(user.type === 'A') { %>
-        <%- include('partials/admin-sidebar'); %>
-      <% } else { %>
-        <%- include('partials/sidebar'); %>
-      <% } %>
+      <%- include('partials/sidebar'); %>
 
     </div>
     <div class="main-panel">
@@ -34,7 +30,7 @@
       <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
         <div class="container-fluid">
           <div class="navbar-wrapper">
-            <p class="navbar-brand">استمارات الكوارث الطبيعية</p>
+            <p class="navbar-brand">استمارات المزيونة</p>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false"
             aria-label="Toggle navigation">
@@ -45,7 +41,6 @@
           </button>
         </div>
       </nav>
-
 
       <div class="content">
         <div class="container-fluid">
@@ -66,15 +61,15 @@
                         <th>تاريخ تعديل الاستمارة</th>
                       </thead>
                       <tbody>
-                        <% if(disasters != null) { %>
-                        <% disasters.forEach(d => {%>
+                        <% if(data != null && data.length > 0 ) { %>
+                        <% data.forEach(d => { %>
                           <tr>
                             <td><%= d.id %></td>
                             <td><%= d.beneficiaryId %></td>
                             <td><%= d.createdAt %></td>
                             <td><%= d.updatedAt %></td>
                           </tr>
-                        <% });} else { %>
+                        <% }); } else { %>
                           <tr>
                             <th colspan="4" class="text-center">لا توجد بيانات مسجلة</th>
                           </tr>
@@ -87,9 +82,11 @@
             </div>
           </div>
         </div>
+
         <!-- footer partial -->
         <%- include('partials/footer'); %>
       </div>
+
     </div>
 
     <!-- Bottom Partial -->

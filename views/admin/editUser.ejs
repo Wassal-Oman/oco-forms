@@ -31,7 +31,7 @@
       </div>
 
       <!-- Sidebar Partial -->
-      <%- include('partials/admin-sidebar'); %>
+      <%- include('partials/sidebar'); %>
 
     </div>
     <div class="main-panel">
@@ -62,7 +62,7 @@
                 </div>
                 <div class="card-body">
                   <%- include('partials/messages'); %>
-                  <form action="/update-user" method="POST">
+                  <form action="/admin/users/update" method="POST">
                     <div class="row">
                       <div class="col-md-12">
                         <div class="form-group">
@@ -96,14 +96,6 @@
                       </div>
                     </div>
                     <div class="row">
-                      <div class="col-md-12">
-                          <div class="form-group">
-                              <label class="bmd-label-floating">كلمة المرور</label>
-                              <input name="password" type="password" class="form-control" required>
-                          </div>
-                      </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
                                   <div class="form-group">
@@ -117,7 +109,7 @@
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary pull-right">تعديل</button>
-                    <a href="/users" class="btn">رجوع</a>
+                    <a href="/admin/users" class="btn">رجوع</a>
                     <div class="clearfix"></div>
                   </form>
                 </div>

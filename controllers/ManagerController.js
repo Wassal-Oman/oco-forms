@@ -6,160 +6,182 @@ const General = require('../models/General');
 
 // home
 module.exports.home = (req, res) => {
+    if(req.session.user.type === 'M') {
+        // define promises
+        const disasterPromise = getDisasterFormsCount();
+        const mazyoonaPromise = getMazyoonaFormsCount();
+        const rescuePromise = getRescueFormsCount();
+        const generalPromise = getGeneralFormsCount();
 
-    // define promises
-    const disasterPromise = getDisasterFormsCount();
-    const mazyoonaPromise = getMazyoonaFormsCount();
-    const rescuePromise = getRescueFormsCount();
-    const generalPromise = getGeneralFormsCount();
+        // set active pages
+        const pages = {
+            home: 'active',
+            profile: '',
+            disaster: '',
+            mazyoona: '',
+            rescue: '',
+            general: ''
+        };
 
-    // set active pages
-    const pages = {
-        home: 'active',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
-
-    // get all statistics
-    Promise.all([disasterPromise, mazyoonaPromise, rescuePromise, generalPromise]).then(val => {
-        // render home page
-        res.render('manager/home', {
-            user: req.session.user,
-            pages,
-            disasterCount: val[0],
-            mazyoonaCount: val[1],
-            rescueCount: val[2],
-            generalCount: val[3]
+        // get all statistics
+        Promise.all([disasterPromise, mazyoonaPromise, rescuePromise, generalPromise]).then(val => {
+            // render home page
+            res.render('manager/home', {
+                user: req.session.user,
+                pages,
+                disasterCount: val[0],
+                mazyoonaCount: val[1],
+                rescueCount: val[2],
+                generalCount: val[3]
+            });
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/500');
         });
-    }).catch(err => {
-        console.log(err);
-        res.redirect('/500');
-    });
+    } else {
+        res.redirect('/logout');
+    }
 }
 
 // profile
 module.exports.profile = (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: 'active',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
+    if(req.session.user.type === 'M') {
+        // set active pages
+        const pages = {
+            home: '',
+            profile: 'active',
+            disaster: '',
+            mazyoona: '',
+            rescue: '',
+            general: ''
+        };
 
-    // render home page
-    res.render('manager/profile', {
-        user: req.session.user,
-        pages
-    });
+        // render home page
+        res.render('manager/profile', {
+            user: req.session.user,
+            pages
+        });
+    } else {
+        res.redirect('/logout');
+    }
 }
 
 // get disaster forms
-module.exports.getDisasterForms = (req, res) => {
+module.exports.getDisasters = (req, res) => {
+    if(req.session.user.type === 'M') {
+        // set active pages
+        const pages = {
+            home: '',
+            profile: '',
+            disaster: 'active',
+            mazyoona: '',
+            rescue: '',
+            general: ''
+        };
 
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: 'active',
-        mazyoona: '',
-        rescue: '',
-        general: ''
-    };
-
-    // fetch disaster forms
-    getDisasterForms().then(val => {
-        console.log(val);
-        res.render('manager/disaster-form', {
-            user: req.session.user,
-            pages,
-            data: val
+        // fetch disaster forms
+        getDisasterForms().then(val => {
+            console.log(val);
+            res.render('manager/disasters', {
+                user: req.session.user,
+                pages,
+                data: val
+            });
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/500');
         });
-    }).catch(err => {
-        console.log(err);
-        res.redirect('/500');
-    });
+    } else {
+        res.redirect('/logout');
+    }
 }
 
 // get mazyoona forms
-module.exports.getMazyoonaForms = (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: 'active',
-        rescue: '',
-        general: ''
-    };
+module.exports.getMazyoonas = (req, res) => {
+   if(req.session.user.type === 'M') {
+        // set active pages
+        const pages = {
+            home: '',
+            profile: '',
+            disaster: '',
+            mazyoona: 'active',
+            rescue: '',
+            general: ''
+        };
 
-    // fetch mazyoona forms
-    getMazyoonaForms().then(val => {
-        console.log(val);
-        res.render('manager/mazyoona-form', {
-            user: req.session.user,
-            pages,
-            data: val
+        // fetch mazyoona forms
+        getMazyoonaForms().then(val => {
+            console.log(val);
+            res.render('manager/mazyoonas', {
+                user: req.session.user,
+                pages,
+                data: val
+            });
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/500');
         });
-    }).catch(err => {
-        console.log(err);
-        res.redirect('/500');
-    });
+   } else {
+       res.redirect('/logout');
+   }
 }
 
 // get rescue forms
-module.exports.getRescueForms = (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: 'active',
-        general: ''
-    };
+module.exports.getRescues = (req, res) => {
+   if(req.session.user.type === 'M') {
+        // set active pages
+        const pages = {
+            home: '',
+            profile: '',
+            disaster: '',
+            mazyoona: '',
+            rescue: 'active',
+            general: ''
+        };
 
-    getRescueForms().then(val => {
-        console.log(val);
-        res.render('manager/rescue-form', {
-            user: req.session.user,
-            pages,
-            data: val
+        getRescueForms().then(val => {
+            console.log(val);
+            res.render('manager/rescues', {
+                user: req.session.user,
+                pages,
+                data: val
+            });
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/500');
         });
-    }).catch(err => {
-        console.log(err);
-        res.redirect('/500');
-    });
+   } else {
+       res.redirect('/logout');
+   }
 }
 
 // get general forms
-module.exports.getGeneralForms = (req, res) => {
-    // set active pages
-    const pages = {
-        home: '',
-        profile: '',
-        disaster: '',
-        mazyoona: '',
-        rescue: '',
-        general: 'active'
-    };
+module.exports.getGenerals = (req, res) => {
+    if(req.session.user.type === 'M') {
+        // set active pages
+        const pages = {
+            home: '',
+            profile: '',
+            disaster: '',
+            mazyoona: '',
+            rescue: '',
+            general: 'active'
+        };
 
-    getGeneralForms().then(val => {
-        console.log(val);
-        res.render('manager/general-form', {
-            user: req.session.user,
-            pages,
-            data: val
+        getGeneralForms().then(val => {
+            console.log(val);
+            res.render('manager/generals', {
+                user: req.session.user,
+                pages,
+                data: val
+            });
+        }).catch(err => {
+            console.log(err);
+            res.redirect('/500');
         });
-    }).catch(err => {
-        console.log(err);
-        res.redirect('/500');
-    });
+    } else {
+        res.redirect('/logout');
+    }
 }
 
 /* **** functions **** */

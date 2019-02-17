@@ -30,7 +30,7 @@
       <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
         <div class="container-fluid">
           <div class="navbar-wrapper">
-            <p class="navbar-brand">مستخدمي النظام</p>
+            <p class="navbar-brand">الاستمارات الاغاثية</p>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false"
             aria-label="Toggle navigation">
@@ -42,53 +42,34 @@
         </div>
       </nav>
 
-
       <div class="content">
         <div class="container-fluid">
           <div class="row">
             <div class="col-md-12">
-              <%- include('partials/messages'); %>
               <div class="card">
                 <div class="card-header card-header-primary">
-                  <h4 class="card-title ">قائمة مستخدمي النظام</h4>
+                  <h4 class="card-title ">استمارات الكوارث الطبيعية</h4>
+                  <p class="card-category">احصائيات الكوارث الطبيعية</p>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
                     <table class="table">
                       <thead class=" text-primary">
-                        <th>الرقم الوظيفي</th>
-                        <th>الاسم</th>
-                        <th>رقم الهاتف</th>
-                        <th>البريد الالكتروني</th>
-                        <th>الفئة</th>
-                        <th>ادارة المستخدم</th>
+                        <th>الرقم المتسلسل</th>
+                        <th>المستفيد</th>
+                        <th>تاريخ ادخال الاستمارة</th>
+                        <th>تاريخ تعديل الاستمارة</th>
                       </thead>
                       <tbody>
-                        <% if(users != null) { %>
-                        <% users.forEach(u => {%>
+                        <% if(data != null && data.length > 0 ) { %>
+                        <% data.forEach(d => { %>
                           <tr>
-                            <td><%= u.id %></td>
-                            <td><%= u.name %></td>
-                            <td><%= u.phone %></td>
-                            <td><%= u.email %></td>
-                            <td>
-                              <% if(u.type === 'A') { %>مسؤول النظام<% } %>
-                              <% if(u.type === 'M') { %>مدير البحث الاجتماعي<% } %>
-                              <% if(u.type === 'R') { %>الباحث الاجتماعي<% } %>
-                            </td>
-                            <td>
-                              <div class="dropdown">
-                                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                                  <i class="material-icons">settings</i>
-                                </button>
-                                <div class="dropdown-menu">
-                                  <a class="dropdown-item" href="/admin/users/<%= u.id %>/edit">تعديل</a>
-                                  <a class="dropdown-item" href="/admin/users/<%= u.id %>/delete" onclick="return confirm('هل انت متاكد من حذف المستخدم؟')">حذف</a>
-                                </div>
-                              </div>
-                            </td>
+                            <td><%= d.id %></td>
+                            <td><%= d.beneficiaryId %></td>
+                            <td><%= d.createdAt %></td>
+                            <td><%= d.updatedAt %></td>
                           </tr>
-                        <% });} else { %>
+                        <% }); } else { %>
                           <tr>
                             <th colspan="4" class="text-center">لا توجد بيانات مسجلة</th>
                           </tr>
@@ -96,15 +77,16 @@
                       </tbody>
                     </table>
                   </div>
-                  <a href="/admin/users/add" class="btn btn-primary" role="button">اضافة مستخدم جديد</a>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
         <!-- footer partial -->
         <%- include('partials/footer'); %>
       </div>
+
     </div>
 
     <!-- Bottom Partial -->

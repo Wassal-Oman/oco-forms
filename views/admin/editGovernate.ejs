@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <!-- Head Partial -->
+    <%- include('partials/head'); %>
+
+    <title>استمارات الباحث الاجتماعي</title>
+    <style>
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        .card {
+          width: 700px;
+        }
+    </style>
+</head>
+
+<body class="">
+  <div class="wrapper ">
+    <div class="sidebar" data-color="purple" data-background-color="white" data-image="/img/sidebar.jpg">
+
+      <!-- Logo -->
+      <div class="logo">
+        <a href="/" class="simple-text logo-normal">
+        استمارات الباحث الاجتماعي
+        </a>
+      </div>
+
+      <!-- Sidebar Partial -->
+      <%- include('partials/sidebar'); %>
+
+    </div>
+    <div class="main-panel">
+
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            <p class="navbar-brand">تعديل محافظة</p>
+          </div>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="navbar-toggler-icon icon-bar"></span>
+            <span class="navbar-toggler-icon icon-bar"></span>
+            <span class="navbar-toggler-icon icon-bar"></span>
+          </button>
+        </div>
+      </nav>
+
+
+      <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+              <div class="card mx-auto">
+                <div class="card-header card-header-primary">
+                  <h4 class="card-title">تعديل محافظة</h4>
+                </div>
+                <div class="card-body">
+                  <%- include('partials/messages'); %>
+                  <form action="/admin/governates/update" method="POST">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                          <label class="bmd-label-floating">اسم المحافظة</label>
+                          <input name="name" type="text" class="form-control" value="<%= governate.name %>" required>
+                          <input name="id" type="hidden" value="<%= governate.id %>" required>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary pull-right">تعديل</button>
+                    <a href="/admin/settings" class="btn">رجوع</a>
+                    <div class="clearfix"></div>
+                  </form>
+                </div>
+              </div>
+            </div>
+        </div>
+        <!-- footer partial -->
+        <%- include('partials/footer'); %>
+      </div>
+    </div>
+
+    <!-- Bottom Partial -->
+    <%- include('partials/bottom'); %>
+</body>
+</html>
