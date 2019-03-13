@@ -8,6 +8,7 @@ const settings = require("../config/settings");
 const mail = require("../config/sendemail");
 const Category = require("../models/Category");
 const Beneficiary = require("../models/Beneficiary");
+const Income = require("../models/Income");
 const router = express.Router();
 
 // get JWT secret key
@@ -223,6 +224,46 @@ router.get("/categories", (req, res) => {
     });
 });
 
+// get categories data
+router.post("/categories/id", verifyToken, (req, res) => {
+  // verify token
+  jwt.verify(req.token, jwtSecretKey, (err, data) => {
+    if (err) {
+      res.json({
+        status: "error",
+        message: "رمز الوصول غير صحيح"
+      });
+    } else {
+      // get category
+      const id = req.body.id;
+
+      if (id) {
+        Category.findOne({ where: { id } })
+          .then(val => {
+            res.json({
+              status: "success",
+              message: "تم جلب الحالة الاجتماعية بنجاح",
+              data: val
+            });
+          })
+          .catch(err => {
+            res.json({
+              status: "error",
+              message: "حصل خطأ في قاعدة البيانات",
+              data: { name: err }
+            });
+          });
+      } else {
+        res.json({
+          status: "error",
+          message: "الحالة الاجتماعية غير معروفة",
+          data: { name: "No Category" }
+        });
+      }
+    }
+  });
+});
+
 // search for registered beneficiary
 router.post("/beneficiary", verifyToken, (req, res) => {
   // verify token
@@ -312,6 +353,199 @@ router.post("/beneficiary/add", verifyToken, (req, res) => {
         });
     }
   });
+});
+
+// add beneficiary
+router.post("/beneficiary/update", verifyToken, (req, res) => {
+  // verify token
+  jwt.verify(req.token, jwtSecretKey, (err, data) => {
+    if (err) {
+      res.json({
+        status: "error",
+        message: "رمز الوصول غير صحيح"
+      });
+    } else {
+      // beneficiary details
+      const {
+        file_number,
+        name,
+        dob,
+        nationality,
+        phone,
+        address,
+        category
+      } = req.body;
+
+      // update beneficiary
+      Beneficiary.update(
+        {
+          name,
+          date_of_birth: dob,
+          nationality,
+          mobile: phone,
+          address,
+          categoryId: category
+        },
+        { where: { file_id: file_number } }
+      )
+        .then(val => {
+          console.log(val);
+          res.json({
+            status: "success",
+            message: "تم تحديث بيانات المستفيد بنجاح",
+            data: val
+          });
+        })
+        .catch(err => {
+          res.json({
+            status: "error",
+            message: "حدث خطأ أثناء تحديث بيانات المستفيد",
+            data: err
+          });
+        });
+    }
+  });
+});
+
+// search for income
+router.post("/income", verifyToken, (req, res) => {
+  // get beneficiary id
+  const beneficiaryId = req.body.beneficiary_id;
+
+  if (beneficiaryId) {
+    Income.findOne({ where: { beneficiaryId } })
+      .then(val => {
+        res.json({
+          status: "success",
+          message: "تم جلب معلومات الدخل بنجاح",
+          data: val
+        });
+      })
+      .catch(err => {
+        res.json({
+          status: "error",
+          message: "حدث خطأ في قاعدة البيانات"
+        });
+      });
+  } else {
+    res.json({
+      status: "error",
+      message: "المستفيد عير معروف"
+    });
+  }
+});
+
+// add new income
+router.post("/income/add", verifyToken, (req, res) => {
+  // get beneficiary id
+  const beneficiaryId = req.body.beneficiary_id;
+  const income_source = req.body.income_source;
+  const other_source = req.body.other_source;
+
+  if (beneficiaryId && income_source) {
+    // check if beneficiary does not have any income source
+    Income.findOne({ where: { beneficiaryId } })
+      .then(income => {
+        if (income) {
+          console.log(income);
+          res.json({
+            status: "error",
+            message:
+              "بيانات الدخل موجودة بالفعل ... لا يمكن ادخال بيانات اضافية"
+          });
+        } else {
+          Income.create({
+            beneficiaryId,
+            income_source,
+            other_source
+          })
+            .then(val => {
+              console.log(val);
+              res.json({
+                status: "success",
+                message: "تم ادخال بيانات الدخل بنجاح"
+              });
+            })
+            .catch(err => {
+              console.log(err);
+              res.json({
+                status: "error",
+                message: "حدث خطأ في قاعدة البيانات"
+              });
+            });
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        res.json({
+          status: "error",
+          message: "حدث خطأ في قاعدة البيانات"
+        });
+      });
+  } else {
+    res.json({
+      status: "error",
+      message: "بيانات الدخل غير مكتملة"
+    });
+  }
+});
+
+// add new income
+router.post("/income/update", verifyToken, (req, res) => {
+  // get beneficiary id
+  const beneficiaryId = req.body.beneficiary_id;
+  const income_source = req.body.income_source;
+  const other_source = req.body.other_source;
+
+  if (beneficiaryId && income_source) {
+    // check if beneficiary does not have any income source
+    Income.findOne({ where: { beneficiaryId } })
+      .then(income => {
+        if (!income) {
+          console.log(income);
+          res.json({
+            status: "error",
+            message:
+              "لا توجد بيانات للدخل مسجلة بأسم هذا المستخدم .. الرجاء أدخال بيانات جديدة"
+          });
+        } else {
+          Income.update(
+            {
+              beneficiaryId,
+              income_source,
+              other_source
+            },
+            { where: { beneficiaryId } }
+          )
+            .then(val => {
+              console.log(val);
+              res.json({
+                status: "success",
+                message: "تم تحديث بيانات الدخل بنجاح"
+              });
+            })
+            .catch(err => {
+              console.log(err);
+              res.json({
+                status: "error",
+                message: "حدث خطأ في قاعدة البيانات"
+              });
+            });
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        res.json({
+          status: "error",
+          message: "حدث خطأ في قاعدة البيانات"
+        });
+      });
+  } else {
+    res.json({
+      status: "error",
+      message: "بيانات الدخل غير مكتملة"
+    });
+  }
 });
 
 // if route does not exist
